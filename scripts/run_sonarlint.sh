@@ -15,6 +15,23 @@ function run_and_check_status() {
     fi
 }
 
+function parse_deployment_property() {
+    local property=$1
+    local default=$2
+
+    local retval=$( grep "${property}" ${combinedPropertiesFile} | sed s/.*=// )
+
+    if [ -z "${retval}" ]; then
+        if [ -z "${default}" ]; then
+            exit 1
+        else
+            echo "${default}"
+        fi
+    else
+        echo "${retval}"
+    fi
+}
+
 function sonarlint() {
     # Used for debugging of env variables based in by sonar adapter
     printenv > ${logDir}environment_out.log
@@ -35,8 +52,12 @@ function sonarlint() {
     # Run Scan
     echo -n `date "+%D %H:%M:%S"`
     echo " : Starting Scan."
-
-    run_and_check_status "${sonarlint}" --html-report "${reportDir}SonarScan.html" --debug
+    
+    if [ "$sonarDebug" = "true" ]; then
+    	run_and_check_status "${sonarlint}" --html-report "${reportDir}SonarScan.html" --debug
+    else
+    	run_and_check_status "${sonarlint}" --html-report "${reportDir}SonarScan.html"
+    fi
     
     echo -n `date "+%D %H:%M:%S"`
     echo " : Scan Completed. Creating html report bundle"
