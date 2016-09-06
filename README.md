@@ -36,7 +36,7 @@ In order to begin scanning with Sonar, you must first create a **Sonar Test Asse
 
 ## sonar-config.properties:
 
-*   **sonar.executable**: _(required)_ the name of the executable file in the scripts directory. This file contains the necessary logic and flow to run a sonar scan
+*   **sonar.executable**: _(required)_ the name of the executable file in the scripts directory. This file contains the necessary logic and flow to run a sonar scan. (See http://www.sonarlint.org/commandline for more info on how to configure a sonar scan)
 *   **sonar.scm.file**: _(optional)_ the file detailing the SCM repositor(y/ies) to be accessed. If not provided, the scan is assumed to be a local source code scan and the test asset's media directory must contain source code.
 *   **sonar.source.path**: _(optional)_ the additional path to the source code to be scanned
 
