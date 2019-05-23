@@ -110,7 +110,7 @@ function run_sonarlint() {
     printenv >> ${sonarLogFile} 2>&1
 
     # Ensure the sourceDir var is set and a valid directory
-    if [ -z "${souceDir}" ]; then logErr "Required environment variable is not set: sourceDir"; return 2; fi
+    if [ -z "${sourceDir}" ]; then logErr "Required environment variable is not set: sourceDir"; return 2; fi
     if [ ! -d ${sourceDir} ]; then logErr "sourceDir is not a valid directory: ${sourceDir}"; return 3; fi
 
     # Ensure the sonarlint env var is set and valid
