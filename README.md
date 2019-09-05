@@ -7,42 +7,54 @@ begin customizing the source code and even the scan itself.
 
 ## Customize your Own
 
-1.  git clone: https://github.com/cons3rt/test-asset-sonar-simple.git
-2.  Edit the asset.properties file as needed (e.g. name, description, etc.)
-3.  If the scan is to be SCM based: add the required property to sonar-config.properties and the corresponding 
-repositories file to the scripts directory (see below)
-4.  Otherwise: add the desired source code to the media/source directory (see below)
-5.  In the scripts directory, edit the **run_sonarlint.sh** script directly to customize the type of scan to be 
-run (if desired).
-7.  Upload your new test asset to CONS3RT
-8.  Add the new test asset to a deployment or create a test-only deployment and launch
-9.  View your results!
+* Clone this repo: `git clone https://github.com/cons3rt/test-asset-sonar-simple.git`
+* Edit the `asset.properties` file as needed (name, description, etc.)
+* Provide source code to be scanned, 2 options are:
+  * Clone source code from a git or subversion source code repository:
+    * Add one or more repositories to the `scripts/repositories.json` file, use the 
+    provided `repositories-samples.json` for format on how to include repo info and credentials
+  * Include source code in this test asset
+    * Add source code directories and files to the `media/source` directory of this asset(see below)
+    * Comment out the `sonar.scm.file` in `config/sonar-config.properties`
+* If needed, edit the `scripts/run_sonarlint.sh` script to customize the scan (sonarlint help below)
+* Import your new test asset to CONS3RT [instructions here](https://kb.cons3rt.com/kb/elastic-tests/import-a-test-asset)
+* Run your scan! [instructions here](https://kb.cons3rt.com/articles/sonar-scans)
 
 # Asset Structure
 
-*   **asset.properties** file: detailing the metadata of the test asset (name, description, etc)
-*   **LICENSE** file: Use as desired, defines licensing terms
-*   **README.md** file: Add specific information about this test case, such as deployment properties, etc.
-*   **config directory**:
-    *   **sonar-config.properties** file: defining the required test asset properties (see properties)
-*   **scripts directory**:
-    *   Required:
-        * **executable** script: main script that contains any user logic and defines sonar flow 
-    *   Optional:
-        *   **SCM** file: contains the json representing one or more repositories to checkout/clone
-*   **media directory**: _(optional)_
-    * **source directory**: directory containing source code. Must be provided if scan is not SCM based.
-    * **tests directory**: directory containing custom tests
+~~~
+asset.properties (required): metadata for the test asset (name, description, etc)
+LICENSE (required): User agreement for this test asset
+README.md (required): Info about this test asset, such as custom properties, etc.
+config/ 
+    sonar-config.properties (required): defines the required test asset properties
+scripts/
+    run_sonarlint.sh (required): main script that contains any user logic and defines sonar flow 
+    respositories.json (optional): contains data for one or more repositories to scan
+media/ (optional)
+    source/ (optional): directory containing source code, provide if repositories.json is not being used
+    tests/  (optional): directory containing custom tests
+~~~
 
 # Properties
 
 ## sonar-config.properties:
 
-*   **sonar.executable**: _(required)_ the name of the executable file in the scripts directory. This file 
-contains the necessary logic and flow to run a sonar scan. See Sonar command line help below.
-*   **sonar.scm.file**: _(optional)_ the file detailing the SCM repositor(y/ies) to be accessed. If not provided, 
-the scan is assumed to be a local source code scan and the test asset's media directory must contain source code.
-*   **sonar.source.path**: _(optional)_ the additional path to the source code to be scanned
+~~~
+# REQUIRED
+# The executable script that runs the sonar scan
+# This file contains the necessary logic and flow to run a sonar scan. See Sonar command line help below.
+sonar.executable=run_sonarlint.sh
+
+# OPTIONAL
+# The file detailing the SCM repositor(y/ies) to be scanned. If not provided, the scan is assumed to be a local source code scan and the test asset's media directory must contain source code.
+sonar.scm.file=repositories.json
+
+# OPTIONAL
+# Additional path to the source code to be scanned in addition to media/source
+# Default: Scan everything in media/source
+sonar.source.path=my/sub/module
+~~~
 
 ###### Sonar Command Line Help
 
@@ -73,17 +85,17 @@ INFO:  --exclude <glob pattern> GLOB pattern to exclude files
 INFO:  --charset <name>         Character encoding of the source files
 ~~~
 
-## Deployment Properties:
+## Custom Properties (add when creating a Deployment or launching a Run):
 *   **Optional:**
     *   **sonar.source.path**: the path to the source code to be scanned, this overrides the path in 
     sonar-config.properties if provided.
     *   **sonar.debug**: whether or not to include the debug flag. **Default**: false
 
-## SCM JSON File:
-* **
-If a sonar scan is to access one or more remote SCM repositories for source code checkout, then a **sonar.scm.file** 
-property must be provided in the **sonar-config.properties**, and the appropriately named file must exist in 
-the **scripts directory**.
+## repositories.json File:
+
+If a sonar scan is to access one or more remote SCM repositories for source code checkout, then a `sonar.scm.file` 
+property must be provided in the `sonar-config.properties`, and a file with that name must exist in 
+the `scripts` directory (e.g. `repositories.json`).
 
 The SCM file contains one or more repository objects, in a JSON array. If no credentials object is provided or 
 a type DEFAULT object is provided, the the default CONS3RT credentials will be used to access the repository. 
@@ -94,9 +106,7 @@ a type DEFAULT object is provided, the the default CONS3RT credentials will be u
         {
                 "type":"GIT",                       (Required: Either GIT or SVN)
                 "url":"ssh://git@user-info.git",    (Required: The repostiory url)
-                "branch":"master",                  (Optional: The specific branch to checkout)
-                
-                (Optional Object: used to pass credentials)
+                "branch":"master",                  (Optional: The specific branch to checkout)                
                 "credentials" : {                   
                     "type": "USER_PASS",            (Required: Either DEFAULT or USER_PASS) 
                     "username":"foo",               (Required: if USER_PASS, the username)
@@ -106,7 +116,6 @@ a type DEFAULT object is provided, the the default CONS3RT credentials will be u
     ]
     
 # Exported Variables
-* **
 
 As part of the test tool adapter, the following variables are exported for use in the executable script:
 
@@ -122,13 +131,10 @@ As part of the test tool adapter, the following variables are exported for use i
 
 Any of the above variables can be accessed within the sonar executable script, format. **${sourceDir}**
 
+## Use with DI2E and Forge.mil
+
+* [Documentation on integrations with DI2E and Forge.mil](https://kb.cons3rt.com/articles/source-code-accounts/)
+
 # Additional Notes
-* **
 
-As an example the executable script in this test asset, contains logic blocks to do the following:
-
-*   Parse a particular property from the combinedPropsFile, and (if specified) return a default value or the property. 
-This is to allow for the use of deployment properties or test asset properties within the executable script that the 
-test tool adapter may not export or require normally.
-
-
+* The sonarlint CLI has been deprecated, and the development team is working on a replacement
