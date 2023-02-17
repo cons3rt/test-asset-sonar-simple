@@ -1,5 +1,9 @@
 # Sonar Simple Test Asset
 
+# DEPRECATED
+
+## This is no longer a CONS3RT asset type
+
 ## Usage:
 
 In order to begin scanning with Sonar, you must first create a **Sonar Test Asset** just like this one. Then you can 
